@@ -22,6 +22,11 @@ android {
         proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
     }
 
+    // the release workflow composes the fork's version from the two values above and
+    // fork-version, and passes it in here; a local build keeps upstream's version
+    System.getenv("FORK_VERSION_CODE")?.let { defaultConfig.versionCode = it.toInt() }
+    System.getenv("FORK_VERSION_NAME")?.let { defaultConfig.versionName = it }
+
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -68,6 +73,32 @@ android {
                     output.outputFileName = "HeliBoard_${defaultConfig.versionName}-${variant.buildType}.apk"
                 }
             }
+        }
+    }
+
+    signingConfigs {
+        // set by the release workflow; without them a local release build stays unsigned as before
+        System.getenv("KEYSTORE_FILE")?.let { keystore ->
+            create("fork") {
+                storeFile = file(keystore)
+                storePassword = System.getenv("KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("KEY_ALIAS")
+                keyPassword = System.getenv("KEY_PASSWORD")
+            }
+        }
+    }
+
+    buildTypes {
+        getByName("release") {
+            signingConfig = signingConfigs.findByName("fork")
+        }
+        create("beta") { // release settings, but installs next to stable instead of replacing it, see app/src/beta
+            isMinifyEnabled = true
+            isShrinkResources = false
+            isDebuggable = false
+            isJniDebuggable = false
+            applicationIdSuffix = ".beta"
+            signingConfig = signingConfigs.findByName("fork")
         }
     }
 
