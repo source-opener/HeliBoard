@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<lint>
+    <!-- translations come from Weblate, so at any moment most locales are missing the newest strings -->
+    <issue id="MissingTranslation" severity="informational" />
+</lint>

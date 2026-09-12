@@ -1,7 +1,13 @@
-name: Build debug APK
+name: CI
+# never on push: the pull request builds the same commits already
 
 on:
+  pull_request:
   workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -14,7 +20,8 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          # Robolectric refuses to create a sandbox for SDK 36 on anything below 21
+          java-version: '21'
           distribution: 'temurin'
 
       - uses: gradle/actions/setup-gradle@v3
@@ -22,8 +29,18 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build with Gradle
+      - name: Lint
+        run: ./gradlew lintDebug
+
+      - name: Run tests
+        run: ./gradlew testRunTestsUnitTest
+
+      - name: Build debug APK
         run: ./gradlew assembleDebug
+
+      - name: Check the beta variant
+        # merging its resources catches a broken beta source set without needing signing secrets
+        run: ./gradlew mergeBetaResources
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
