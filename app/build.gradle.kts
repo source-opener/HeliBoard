@@ -76,6 +76,10 @@ android {
         }
     }
 
+    // AGP 9 only creates unit tests for the testBuildType variant, and app/src/test skips
+    // the tests known to fail, plus the ones hitting the network, when built as runTests
+    testBuildType = "runTests"
+
     signingConfigs {
         // set by the release workflow; without them a local release build stays unsigned as before
         System.getenv("KEYSTORE_FILE")?.let { keystore ->
