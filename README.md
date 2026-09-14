@@ -8,6 +8,7 @@ Does not use internet permission, and thus is 100% offline.
 
 ## Table of Contents
 
+- [About this fork](#about-this-fork)
 - [Features](#features)
 - [Contributing](#contributing-)
    * [Reporting Issues](#reporting-issues)
@@ -18,6 +19,17 @@ Does not use internet permission, and thus is 100% offline.
 - [License](#license)
 - [Credits](#credits)
   * [Funding](#funding)
+
+# About this fork
+
+This is a fork of [HeliBoard](https://github.com/HeliBorg/HeliBoard). It follows upstream and adds its own
+features on top, published here as its own signed builds: a stable channel from `main` and a beta channel from
+`dev`, both built by GitHub Actions. See [docs/RELEASING.md](docs/RELEASING.md) for the release setup, and
+[releases](../../releases) for the builds.
+
+The work in this fork is done mainly by Claude, with a human reviewing and approving every change. Upstream asks
+that AI generated contributions are not sent to it (see [AI_USAGE.md](AI_USAGE.md)), so changes made here are not
+proposed upstream.
 
 # Features
 <ul>
