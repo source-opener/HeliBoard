@@ -15,11 +15,23 @@ android {
         targetSdk = 37
         versionCode = 4101
         versionName = "4.1"
+        // the fork composes its own version from these and fork-version, see docs/RELEASING.md
+        System.getenv("ANDROID_VERSION_CODE")?.let { versionCode = it.toInt() }
+        System.getenv("ANDROID_VERSION_NAME")?.let { versionName = it }
         ndk {
             abiFilters.clear()
             abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64"))
         }
         proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+    }
+
+    signingConfigs {
+        create("release") {
+            keyAlias = System.getenv("ANDROID_KEY_ALIAS")
+            keyPassword = System.getenv("ANDROID_KEY_PASSWORD")
+            storePassword = System.getenv("ANDROID_STORE_PASSWORD")
+            System.getenv("ANDROID_KEYFILE")?.let { storeFile = file(it) }
+        }
     }
 
     buildTypes {
@@ -28,6 +40,15 @@ android {
             isShrinkResources = false
             isDebuggable = false
             isJniDebuggable = false
+            // only when the workflow provides a keystore, so a local release build is unchanged
+            if (System.getenv("ANDROID_KEYFILE") != null)
+                signingConfig = signingConfigs.getByName("release")
+        }
+        create("beta") { // release as a separate app, so a beta installs next to the stable build
+            initWith(buildTypes.getByName("release"))
+            applicationIdSuffix = ".beta"
+            if (System.getenv("ANDROID_VERSION_NAME") == null)
+                versionNameSuffix = "-beta"
         }
         create("nouserlib") { // same as release, but does not allow the user to provide a library
             isMinifyEnabled = true
