@@ -99,6 +99,7 @@ public final class Settings implements SharedPreferences.OnSharedPreferenceChang
     public static final String PREF_ENABLE_SPLIT_KEYBOARD_LANDSCAPE = "split_keyboard_landscape";
     public static final String PREF_ENABLE_SPLIT_KEYBOARD_FOLDED = "split_keyboard_folded";
     public static final String PREF_ENABLE_SPLIT_KEYBOARD_FOLDED_LANDSCAPE = "split_keyboard_folded_landscape";
+    public static final String PREF_SPLIT_GHOST_KEYS = "split_ghost_keys";
     public static final String PREF_SPLIT_SPACER_SCALE_PREFIX = "split_spacer_scale";
     public static final String PREF_KEYBOARD_HEIGHT_SCALE_PREFIX = "keyboard_height_scale";
     public static final String PREF_BOTTOM_ROW_SCALE_PREFIX = "bottom_row_scale";
@@ -440,6 +441,10 @@ public final class Settings implements SharedPreferences.OnSharedPreferenceChang
                       ? (isFolded ? PREF_ENABLE_SPLIT_KEYBOARD_FOLDED_LANDSCAPE : PREF_ENABLE_SPLIT_KEYBOARD_LANDSCAPE)
                       : (isFolded ? PREF_ENABLE_SPLIT_KEYBOARD_FOLDED : PREF_ENABLE_SPLIT_KEYBOARD);
         return prefs.getBoolean(pref, Defaults.PREF_ENABLE_SPLIT_KEYBOARD);
+    }
+
+    public static boolean readSplitGhostKeysEnabled(SharedPreferences prefs) {
+        return prefs.getBoolean(PREF_SPLIT_GHOST_KEYS, Defaults.PREF_SPLIT_GHOST_KEYS);
     }
 
     public static float readSplitSpacerScale(SharedPreferences prefs, boolean landscape, boolean folded) {

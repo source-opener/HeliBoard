@@ -149,6 +149,8 @@ public class Key implements Comparable<Key> {
     private final KeyVisualAttributes mKeyVisualAttributes;
     @Nullable
     private final OptionalAttributes mOptionalAttributes;
+    /** A duplicate drawn into the split gap, see KeyboardBuilder.addGhostKeys */
+    private final boolean mIsGhostKey;
 
     private static final class OptionalAttributes {
         /** Text to output when pressed. This can be multiple characters, like ".com" */
@@ -220,6 +222,7 @@ public class Key implements Comparable<Key> {
         mY = y;
         mHitBox.set(x, y, x + width + 1, y + height);
         mKeyVisualAttributes = null;
+        mIsGhostKey = false;
 
         mHashCode = computeHashCode(this);
     }
@@ -254,6 +257,7 @@ public class Key implements Comparable<Key> {
         mActionFlags = key.mActionFlags;
         mKeyVisualAttributes = key.mKeyVisualAttributes;
         mOptionalAttributes = key.mOptionalAttributes;
+        mIsGhostKey = key.mIsGhostKey;
         mHashCode = key.mHashCode;
         // Key state.
         mPressed = key.mPressed;
@@ -284,6 +288,7 @@ public class Key implements Comparable<Key> {
         mKeyVisualAttributes = key.mKeyVisualAttributes;
         mOptionalAttributes = outputText == null ? null
                 : Key.OptionalAttributes.newInstance(outputText, KeyCode.NOT_SPECIFIED, null, 0, 0);
+        mIsGhostKey = key.mIsGhostKey;
         mHashCode = key.mHashCode;
         // Key state.
         mPressed = key.mPressed;
@@ -306,6 +311,7 @@ public class Key implements Comparable<Key> {
         mKeyVisualAttributes = keyParams.mKeyVisualAttributes;
         mOptionalAttributes = keyParams.mOptionalAttributes;
         mEnabled = keyParams.mEnabled;
+        mIsGhostKey = keyParams.mIsGhostKey;
 
         // stuff to create
 
@@ -352,6 +358,7 @@ public class Key implements Comparable<Key> {
             mActionFlags = key.mActionFlags;
         mKeyVisualAttributes = key.mKeyVisualAttributes;
         mOptionalAttributes = key.mOptionalAttributes;
+        mIsGhostKey = key.mIsGhostKey;
         mHashCode = key.mHashCode;
         // Key state.
         mPressed = key.mPressed;
@@ -393,6 +400,7 @@ public class Key implements Comparable<Key> {
                 key.getOutputText(),
                 key.mActionFlags,
                 key.mLabelFlags,
+                key.mIsGhostKey,
                 // Key can be distinguishable without the following members.
                 // key.mOptionalAttributes.mAltCode,
                 // key.mOptionalAttributes.mDisabledIconId,
@@ -420,7 +428,12 @@ public class Key implements Comparable<Key> {
                 && Arrays.equals(o.mPopupKeys, mPopupKeys)
                 && TextUtils.equals(o.getOutputText(), getOutputText())
                 && o.mActionFlags == mActionFlags
-                && o.mLabelFlags == mLabelFlags;
+                && o.mLabelFlags == mLabelFlags
+                && o.mIsGhostKey == mIsGhostKey;
+    }
+
+    public boolean isGhostKey() {
+        return mIsGhostKey;
     }
 
     @Override
@@ -980,6 +993,7 @@ public class Key implements Comparable<Key> {
     public static class KeyParams {
         // params for building
         public boolean isSpacer;
+        public boolean mIsGhostKey;
         private final KeyboardParams mKeyboardParams; // for reading gaps and keyboard width / height
         public float mWidth;
         public float mHeight; // also should allow negative values, indicating absolute height is defined
@@ -1269,6 +1283,7 @@ public class Key implements Comparable<Key> {
         private KeyParams(final KeyboardParams params) {
             isSpacer = true; // this is only for spacer!
             mKeyboardParams = params;
+            mIsGhostKey = false;
 
             mCode = KeyCode.NOT_SPECIFIED;
             mLabel = null;
@@ -1291,6 +1306,7 @@ public class Key implements Comparable<Key> {
             mWidth = keyParams.mWidth;
             mHeight = keyParams.mHeight;
             isSpacer = keyParams.isSpacer;
+            mIsGhostKey = keyParams.mIsGhostKey;
             mKeyboardParams = keyParams.mKeyboardParams;
             mEnabled = keyParams.mEnabled;
 

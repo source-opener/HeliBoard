@@ -6,6 +6,7 @@
 package helium314.keyboard.keyboard.internal
 
 import android.content.Context
+import android.content.res.Configuration
 import android.content.res.Resources
 import android.util.Xml
 import androidx.annotation.XmlRes
@@ -126,7 +127,13 @@ open class KeyboardBuilder<KP : KeyboardParams>(protected val mContext: Context,
     }
 
     private fun addSplit() {
-        val spacerRelativeWidth = Settings.getValues().mSplitKeyboardSpacerRelativeWidth
+        val settingsValues = Settings.getValues()
+        val spacerRelativeWidth = settingsValues.mSplitKeyboardSpacerRelativeWidth
+        val ghostKeys = settingsValues.mDisplayOrientation == Configuration.ORIENTATION_LANDSCAPE
+                && spacerRelativeWidth > 0f
+                && settingsValues.mSplitGhostKeys
+        val ghostKeyCount = 2
+        val ghostMinSpacerWidth = 0.05f
         // adjust gaps for the whole keyboard, so it's the same for all rows
         mParams.mRelativeHorizontalGap *= 1f / (1f + spacerRelativeWidth)
         mParams.mHorizontalGap = (mParams.mRelativeHorizontalGap * mParams.mId.width).toInt()
@@ -150,8 +157,18 @@ open class KeyboardBuilder<KP : KeyboardParams>(protected val mContext: Context,
                 insertIndex = row.indexOf(spaceLeft) + 1
                 val widthBeforeSpace = row.subList(0, insertIndex - 1).sumOf { it.mWidth }
                 val widthAfterSpace = row.subList(insertIndex, row.size).sumOf { it.mWidth }
-                val spaceLeftWidth = (maxWidthBeforeSpacer - widthBeforeSpace).coerceAtLeast(mParams.mDefaultKeyWidth)
-                val spaceRightWidth = (maxWidthAfterSpacer - widthAfterSpace).coerceAtLeast(mParams.mDefaultKeyWidth)
+                var spaceLeftWidth = (maxWidthBeforeSpacer - widthBeforeSpace).coerceAtLeast(mParams.mDefaultKeyWidth)
+                var spaceRightWidth = (maxWidthAfterSpacer - widthAfterSpace).coerceAtLeast(mParams.mDefaultKeyWidth)
+                if (ghostKeys) {
+                    val spacerWidthBase = spaceLeft.mWidth + spacerRelativeWidth - spaceLeftWidth - spaceRightWidth
+                    if (spacerWidthBase > ghostMinSpacerWidth) {
+                        val requestedExtra = 2f * mParams.mDefaultKeyWidth
+                        val maxExtraEachSide = ((spacerWidthBase - ghostMinSpacerWidth) / 2f).coerceAtLeast(0f)
+                        val extraEachSide = requestedExtra.coerceAtMost(maxExtraEachSide)
+                        spaceLeftWidth += extraEachSide
+                        spaceRightWidth += extraEachSide
+                    }
+                }
                 val spacerWidth = spaceLeft.mWidth + spacerRelativeWidth - spaceLeftWidth - spaceRightWidth
                 if (spacerWidth > 0.05f) {
                     // only insert if the spacer has a reasonable width
@@ -182,6 +199,50 @@ open class KeyboardBuilder<KP : KeyboardParams>(protected val mContext: Context,
                 it.setAbsoluteDimensions(currentX, y)
                 currentX += it.mAbsoluteWidth
             }
+
+            if (!ghostKeys) continue
+
+            // an actual center spacer is needed to position the ghost keys in
+            val spacerIndex = row.indexOf(spacer)
+            if (spacerIndex < 0 || spacer.mWidth <= ghostMinSpacerWidth) continue
+
+            fun isGhostCandidate(key: KeyParams): Boolean {
+                if (key.isSpacer) return false
+                // only duplicate actual letters, not shift/delete/etc and not the space key
+                if (key.mCode == Constants.CODE_SPACE) return false
+                if (key.mCode < Constants.CODE_SPACE) return false
+                if (key.mBackgroundType != Key.BACKGROUND_TYPE_NORMAL) return false
+                // a key wider than the gap would cover real keys and take their touches
+                return key.mAbsoluteWidth <= spacer.mAbsoluteWidth
+            }
+
+            val rightCandidates = (spacerIndex + 1 until row.size)
+                .mapNotNull { idx -> row[idx].takeIf { isGhostCandidate(it) } }
+                .take(ghostKeyCount)
+
+            val leftCandidates = (spacerIndex - 1 downTo 0)
+                .mapNotNull { idx -> row[idx].takeIf { isGhostCandidate(it) } }
+                .take(ghostKeyCount)
+                .asReversed()
+
+            val gapLeft = spacer.xPos
+            val gapRight = spacer.xPos + spacer.mAbsoluteWidth
+
+            fun ghostsOf(candidates: List<KeyParams>, delta: Float) = candidates.map { orig ->
+                KeyParams(orig).apply {
+                    mIsGhostKey = true
+                    xPos = (xPos + delta).coerceIn(gapLeft, gapRight - orig.mAbsoluteWidth)
+                }
+            }
+
+            // the keys of the right half move left to sit against the left edge of the gap, and vice versa
+            val ghostsFromRight = rightCandidates.firstOrNull()
+                ?.let { ghostsOf(rightCandidates, gapLeft - it.xPos) }.orEmpty()
+            val ghostsFromLeft = leftCandidates.lastOrNull()
+                ?.let { ghostsOf(leftCandidates, (gapRight - it.mAbsoluteWidth) - it.xPos) }.orEmpty()
+
+            row.addAll(spacerIndex, ghostsFromRight)
+            row.addAll(row.indexOf(spacer) + 1, ghostsFromLeft)
         }
     }
 
