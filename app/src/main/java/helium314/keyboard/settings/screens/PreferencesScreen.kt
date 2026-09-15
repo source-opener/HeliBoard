@@ -61,6 +61,7 @@ fun PreferencesScreen(
         if (prefs.getBoolean(Settings.PREF_SOUND_ON, Defaults.PREF_SOUND_ON))
             Settings.PREF_KEYPRESS_SOUND_VOLUME else null,
         Settings.PREF_SAVE_SUBTYPE_PER_APP,
+        Settings.PREF_SECOND_TAP_TO_SHOW_LANDSCAPE,
         Settings.PREF_SHOW_EMOJI_DESCRIPTIONS,
         R.string.settings_category_additional_keys,
         Settings.PREF_SHOW_NUMBER_ROW,
@@ -94,6 +95,10 @@ fun PreferencesScreen(
 fun createPreferencesSettings(context: Context) = listOf(
     Setting(context, Settings.PREF_SAVE_SUBTYPE_PER_APP, R.string.save_subtype_per_app) {
         SwitchPreference(it, Defaults.PREF_SAVE_SUBTYPE_PER_APP)
+    },
+    Setting(context, Settings.PREF_SECOND_TAP_TO_SHOW_LANDSCAPE,
+        R.string.second_tap_to_show_landscape, R.string.second_tap_to_show_landscape_summary) {
+        SwitchPreference(it, Defaults.PREF_SECOND_TAP_TO_SHOW_LANDSCAPE)
     },
     Setting(context, Settings.PREF_SHOW_HINTS, R.string.show_hints, R.string.show_hints_summary) {
         SwitchPreference(it, Defaults.PREF_SHOW_HINTS) { KeyboardSwitcher.getInstance().reloadKeyboard() }

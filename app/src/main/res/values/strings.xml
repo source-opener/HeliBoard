@@ -315,6 +315,10 @@
     <string name="number_row_hints">Show hints on number row</string>
     <!-- Title of the setting to save subtype per app -->
     <string name="save_subtype_per_app">Remember language per app</string>
+    <!-- Title of the setting that requires tapping a text field twice before the keyboard opens in landscape -->
+    <string name="second_tap_to_show_landscape">Open on second tap in landscape</string>
+    <!-- Description of the setting to open the keyboard on the second tap -->
+    <string name="second_tap_to_show_landscape_summary">In landscape, focusing a text field does not open the keyboard. Tap the field again to open it. Useful on pages that are mostly input fields.</string>
     <!-- Title of the setting to show key hints -->
     <string name="show_hints">Show key hints</string>
     <!-- Description of the settings to show hints -->

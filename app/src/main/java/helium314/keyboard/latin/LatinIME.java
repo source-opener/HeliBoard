@@ -22,6 +22,8 @@ import android.os.Bundle;
 import android.os.Debug;
 import android.os.Message;
 import android.os.Process;
+import android.os.SystemClock;
+import android.text.TextUtils;
 import android.util.PrintWriterPrinter;
 import android.util.Printer;
 import android.view.KeyEvent;
@@ -116,6 +118,8 @@ public class LatinIME extends InputMethodService implements
     private static final int EXTENDED_TOUCHABLE_REGION_HEIGHT = 100;
     private static final int PERIOD_FOR_AUDIO_AND_HAPTIC_FEEDBACK_IN_KEY_REPEAT = 2;
     private static final int PENDING_IMS_CALLBACK_DURATION_MILLIS = 800;
+    // requests to show that arrive this close together are treated as belonging to the same tap
+    private static final long SAME_TAP_TIMEOUT_MS = 100;
     static final long DELAY_WAIT_FOR_DICTIONARY_LOAD_MILLIS = TimeUnit.SECONDS.toMillis(2);
     static final long DELAY_DEALLOCATE_MEMORY_MILLIS = TimeUnit.SECONDS.toMillis(10);
 
@@ -149,6 +153,12 @@ public class LatinIME extends InputMethodService implements
     // Working variable for {@link #startShowingInputView()} and
     // {@link #onEvaluateInputViewShown()}.
     private boolean mIsExecutingStartShowingInputView;
+
+    // State for {@link #waitsForSecondTap(boolean)}: the editor whose first request to show was declined.
+    @Nullable
+    private String mDeclinedShowPackage;
+    private int mDeclinedShowFieldId;
+    private long mDeclinedShowTime;
 
     // Used for re-initialize keyboard layout after onConfigurationChange.
     @Nullable
@@ -813,6 +823,7 @@ public class LatinIME extends InputMethodService implements
     @Override
     public void onFinishInput() {
         mHandler.onFinishInput();
+        forgetDeclinedShow();
         BackgroundGatheringCache.saveOrClear(this);
     }
 
@@ -1264,7 +1275,47 @@ public class LatinIME extends InputMethodService implements
         if (isImeSuppressedByHardwareKeyboard()) {
             return true;
         }
+        if (waitsForSecondTap(configChange)) {
+            return false;
+        }
         return super.onShowInputRequested(flags, configChange);
+    }
+
+    /**
+     * Whether to decline this request to show the keyboard, because the setting asks for a second
+     * tap on a field in landscape. Merely focusing a field then leaves the keyboard closed, which
+     * keeps it out of the way while tapping around a page that is mostly input fields.
+     * <p>
+     * The second tap is recognized as another request to show for the same field. An app that
+     * requests twice for a single tap therefore still opens on the first tap; the requests of one
+     * tap arrive together, so those within {@link #SAME_TAP_TIMEOUT_MS} count as one.
+     */
+    private boolean waitsForSecondTap(final boolean configChange) {
+        if (configChange || isInputViewShown()) return false;
+        final SettingsValues settingsValues = mSettings.getCurrent();
+        if (!settingsValues.mSecondTapToShowInLandscape) return false;
+        if (settingsValues.mDisplayOrientation != Configuration.ORIENTATION_LANDSCAPE) return false;
+
+        final EditorInfo editorInfo = getCurrentInputEditorInfo();
+        final String packageName = editorInfo == null ? null : editorInfo.packageName;
+        final int fieldId = editorInfo == null ? 0 : editorInfo.fieldId;
+        final long now = SystemClock.elapsedRealtime();
+        final boolean sameField = mDeclinedShowTime != 0 && fieldId == mDeclinedShowFieldId
+                && TextUtils.equals(packageName, mDeclinedShowPackage);
+        if (sameField && now - mDeclinedShowTime > SAME_TAP_TIMEOUT_MS) {
+            forgetDeclinedShow();
+            return false; // the second tap, show the keyboard
+        }
+        mDeclinedShowPackage = packageName;
+        mDeclinedShowFieldId = fieldId;
+        if (!sameField) mDeclinedShowTime = now;
+        return true;
+    }
+
+    private void forgetDeclinedShow() {
+        mDeclinedShowPackage = null;
+        mDeclinedShowFieldId = 0;
+        mDeclinedShowTime = 0;
     }
 
     @Override
