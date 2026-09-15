@@ -151,6 +151,7 @@ public final class Settings implements SharedPreferences.OnSharedPreferenceChang
     public static final String PREF_ONE_HANDED_SCALE_PREFIX = "one_handed_mode_scale";
 
     public static final String PREF_SHOW_NUMBER_ROW = "show_number_row";
+    public static final String PREF_SHOW_MODIFIER_ROW = "show_modifier_row";
     public static final String PREF_SHOW_NUMBER_ROW_IN_SYMBOLS = "show_number_row_in_symbols";
     public static final String PREF_LOCALIZED_NUMBER_ROW = "localized_number_row";
     public static final String PREF_SHOW_NUMBER_ROW_HINTS = "show_number_row_hints";
@@ -346,6 +347,11 @@ public final class Settings implements SharedPreferences.OnSharedPreferenceChang
 
     public static int readDefaultGestureFastTypingCooldown(final Resources res) {
         return res.getInteger(R.integer.config_gesture_static_time_threshold_after_fast_typing);
+    }
+
+    public void toggleModifierRow() {
+        final boolean oldValue = mPrefs.getBoolean(PREF_SHOW_MODIFIER_ROW, Defaults.PREF_SHOW_MODIFIER_ROW);
+        mPrefs.edit().putBoolean(PREF_SHOW_MODIFIER_ROW, !oldValue).apply();
     }
 
     public void toggleAlwaysIncognitoMode() {

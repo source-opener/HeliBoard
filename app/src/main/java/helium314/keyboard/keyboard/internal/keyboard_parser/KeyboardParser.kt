@@ -66,7 +66,9 @@ class KeyboardParser(private val params: KeyboardParams, private val context: Co
         if (params.mId.element.isBottomRow) {
             heightRescale = 4f
             // to have same height as alpha keyboard we act as if we had the default number of rows
-            val virtualRows = if (Settings.getValues().mShowsNumberRow) 5 else 4 // determine from Settings, because it's not actually in params for bottom rows
+            // determine from Settings, because it's not actually in params for bottom rows
+            val sv = Settings.getValues()
+            val virtualRows = 4 + (if (sv.mShowsNumberRow) 1 else 0) + (if (sv.mShowsModifierRow) 1 else 0)
             // params rescale is not perfect, especially mTopPadding may cause 1 pixel offsets because it's already been converted to int once
             params.mOccupiedHeight /= virtualRows
             params.mBaseHeight /= virtualRows
@@ -104,6 +106,9 @@ class KeyboardParser(private val params: KeyboardParams, private val context: Co
         addNumberRowOrPopupKeys(baseKeys, numberRow)
         if (element.isAlphabet)
             addSymbolPopupKeys(baseKeys)
+        if (element.isAlphaOrSymbol && params.mId.modifierRowEnabled) {
+            baseKeys.addAll(0, LayoutParser.parseLayout(LayoutType.MODIFIER_ROW, params, context))
+        }
         if (element.isAlphaOrSymbol && params.mId.numberRowEnabled) {
             val newLabelFlags = defaultLabelFlags or
                     if (Settings.getValues().mShowNumberRowHints) 0 else Key.LABEL_FLAGS_DISABLE_HINT_LABEL

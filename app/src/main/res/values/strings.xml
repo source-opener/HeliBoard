@@ -303,6 +303,10 @@
     <string name="language_and_layouts_title">Languages &amp; Layouts</string>
     <!-- Title of the setting to enable number row -->
     <string name="number_row">Number row</string>
+    <!-- Title of the setting to show a row of modifier keys -->
+    <string name="show_modifier_row">Modifier keys</string>
+    <!-- Description of the setting to show a row of modifier keys -->
+    <string name="show_modifier_row_summary">Show a row with Esc, Tab, Ctrl, Alt and Meta, for shortcuts such as Ctrl+C</string>
     <!-- Description of the settings to enable number row -->
     <string name="number_row_summary">Always show number row</string>
     <!-- Title of the setting to replace the top row in symbols layout with number row -->
@@ -362,6 +366,7 @@
     <string name="voice" tools:keep="@string/voice">Voice input</string>
     <string name="numpad" tools:keep="@string/numpad" translatable="false">@string/layout_numpad</string>
     <string name="dpad" tools:keep="@string/dpad" translatable="false">@string/layout_dpad</string>
+    <string name="modifiers" tools:keep="@string/modifiers" translatable="false">@string/show_modifier_row</string>
     <string name="settings" tools:keep="@string/settings">Settings</string>
     <string name="select_all" tools:keep="@string/select_all" translatable="false">@android:string/selectAll</string>
     <string name="select_word" tools:keep="@string/select_word">Select word</string>
@@ -561,6 +566,8 @@ language, hence "No language". -->
     <string name="layout_dpad" tools:keep="@string/layout_dpad">D-pad</string>
     <!-- Name for number row layout -->
     <string name="layout_number_row" tools:keep="@string/layout_number_row">Number row</string>
+    <!-- Name of the modifier row layout -->
+    <string name="layout_modifier_row" tools:keep="@string/layout_modifier_row">Modifier row</string>
     <!-- Name for number row basic layout -->
     <string name="layout_number_row_basic" tools:keep="@string/layout_number_row_basic">Number row (basic)</string>
     <!-- Name for bottom row layout in emoji view -->

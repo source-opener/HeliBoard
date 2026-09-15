@@ -357,6 +357,11 @@ public final class KeyboardSwitcher {
         reloadKeyboard();
     }
 
+    public void toggleModifierRow() {
+        Settings.getInstance().toggleModifierRow();
+        reloadKeyboard();
+    }
+
     public void reloadKeyboard() {
         if (mCurrentInputView == null)
             return;

@@ -65,6 +65,7 @@ fun PreferencesScreen(
         Settings.PREF_SHOW_EMOJI_DESCRIPTIONS,
         R.string.settings_category_additional_keys,
         Settings.PREF_SHOW_NUMBER_ROW,
+        Settings.PREF_SHOW_MODIFIER_ROW,
         if (SubtypeSettings.getEnabledSubtypes(true).any { it.locale().language in localesWithLocalizedNumberRow })
             Settings.PREF_LOCALIZED_NUMBER_ROW else null,
         if (prefs.getBoolean(Settings.PREF_SHOW_HINTS, Defaults.PREF_SHOW_HINTS)
@@ -99,6 +100,10 @@ fun createPreferencesSettings(context: Context) = listOf(
     Setting(context, Settings.PREF_SECOND_TAP_TO_SHOW_LANDSCAPE,
         R.string.second_tap_to_show_landscape, R.string.second_tap_to_show_landscape_summary) {
         SwitchPreference(it, Defaults.PREF_SECOND_TAP_TO_SHOW_LANDSCAPE)
+    },
+    Setting(context, Settings.PREF_SHOW_MODIFIER_ROW,
+        R.string.show_modifier_row, R.string.show_modifier_row_summary) {
+        SwitchPreference(it, Defaults.PREF_SHOW_MODIFIER_ROW) { KeyboardSwitcher.getInstance().reloadKeyboard() }
     },
     Setting(context, Settings.PREF_SHOW_HINTS, R.string.show_hints, R.string.show_hints_summary) {
         SwitchPreference(it, Defaults.PREF_SHOW_HINTS) { KeyboardSwitcher.getInstance().reloadKeyboard() }

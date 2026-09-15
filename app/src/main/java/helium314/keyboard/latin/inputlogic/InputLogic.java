@@ -864,6 +864,9 @@ public final class InputLogic {
             case KeyCode.SPLIT_LAYOUT:
                 KeyboardSwitcher.getInstance().toggleSplitKeyboardMode();
                 break;
+            case KeyCode.TOGGLE_MODIFIER_ROW:
+                KeyboardSwitcher.getInstance().toggleModifierRow();
+                break;
             case KeyCode.TIMESTAMP:
                 mLatinIME.onTextInput(TimestampKt.getTimestamp(mLatinIME));
                 break;

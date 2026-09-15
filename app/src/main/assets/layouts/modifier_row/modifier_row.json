@@ -1,0 +1,9 @@
+[
+  [
+    { "label": "esc", "type": "function", "width": -1 },
+    { "label": "tab", "type": "function", "width": -1 },
+    { "label": "ctrl", "type": "function", "width": -1 },
+    { "label": "alt", "type": "function", "width": -1 },
+    { "label": "meta", "type": "function", "width": -1 }
+  ]
+]

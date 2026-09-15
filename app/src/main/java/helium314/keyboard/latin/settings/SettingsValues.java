@@ -70,6 +70,7 @@ public class SettingsValues {
     public final boolean mLanguageSwitchKeyToOtherSubtypes;
     private final boolean mShowsLanguageSwitchKey;
     public final boolean mShowsNumberRow;
+    public final boolean mShowsModifierRow;
     public final boolean mShowsNumberRowInSymbols;
     public final boolean mLocalizedNumberRow;
     public final boolean mShowNumberRowHints;
@@ -208,6 +209,7 @@ public class SettingsValues {
         mLanguageSwitchKeyToOtherSubtypes = mIsLocked || languagePref.equals("internal") || languagePref.equals("both");
         mShowsLanguageSwitchKey = prefs.getBoolean(Settings.PREF_SHOW_LANGUAGE_SWITCH_KEY, Defaults.PREF_SHOW_LANGUAGE_SWITCH_KEY);
         mShowsNumberRow = prefs.getBoolean(Settings.PREF_SHOW_NUMBER_ROW, Defaults.PREF_SHOW_NUMBER_ROW);
+        mShowsModifierRow = prefs.getBoolean(Settings.PREF_SHOW_MODIFIER_ROW, Defaults.PREF_SHOW_MODIFIER_ROW);
         mShowsNumberRowInSymbols = prefs.getBoolean(Settings.PREF_SHOW_NUMBER_ROW_IN_SYMBOLS, Defaults.PREF_SHOW_NUMBER_ROW_IN_SYMBOLS);
         mLocalizedNumberRow = SubtypeUtilsKt.getHasLocalizedNumberRow(selectedSubtype, prefs);
         mShowNumberRowHints = prefs.getBoolean(Settings.PREF_SHOW_NUMBER_ROW_HINTS, Defaults.PREF_SHOW_NUMBER_ROW_HINTS);
